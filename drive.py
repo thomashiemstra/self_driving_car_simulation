@@ -9,6 +9,7 @@ from io import BytesIO
 from keras.models import load_model
 import utils
 import matplotlib.pyplot as plt
+import cv2
 
 
 #initialize our server
@@ -27,7 +28,7 @@ speed_limit = MAX_SPEED
 #registering event handler for the server
 @sio.on('telemetry')
 def telemetry(sid, data):
-    plt.ion()
+
     if data:
         # The current steering angle of the car
         steering_angle = float(data["steering_angle"])
@@ -38,8 +39,14 @@ def telemetry(sid, data):
         # The current image from the center camera of the car
         image = Image.open(BytesIO(base64.b64decode(data["image"])))
         try:
+            
             image = np.asarray(image)       # from PIL image to numpy array
             image = utils.preprocess(image) # apply the preprocessing
+            cv2.namedWindow('image',cv2.WINDOW_NORMAL)
+            cv2.resizeWindow('image', 800,264)
+        
+            cv2.imshow('image',image)
+            cv2.waitKey(1)
             image = np.array([image])       # the model expects 4D array
 
             # predict the steering angle for the image
